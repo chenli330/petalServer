@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,8 +29,11 @@ public class PetalController {
     @RequestMapping(value = "/wish", method = {RequestMethod.POST,RequestMethod.GET})
     public Result wish(String desc, String name) throws UniteException {
         Wish record = new Wish(name, desc, new Date(), "false");
+        List<Wish> pageWish=new ArrayList<>();
+        pageWish.add(record);
         wishMapper.insertSelective(record);
-        return Result.OK();
+        JSONObject.DEFFAULT_DATE_FORMAT="yyyy/MM/dd";//设置日期格式
+        return new Result.Builder().setCode(Dict.OK).setMessage(Dict.OK_MESSAGE).setData(JSONObject.toJSONString(pageWish, SerializerFeature.WriteDateUseDateFormat)).builder();
     }
 
     @RequestMapping(value = "/getWish", method = {RequestMethod.POST,RequestMethod.GET})
