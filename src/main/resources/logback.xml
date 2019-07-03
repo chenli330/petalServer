@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- configuration根节点
+    属性说明：
+        scan：配置文件改变时是否重新加载 true表示是
+        scanPeriod： 监视配置文件是否有修改的间隔时间，默认毫秒，scan为true时才生效
+        debug: 是否打印logback内部日志信息 ，true表示是
+
+     总体说明：根节点下有2个属性，三个节点
+        属性： contextName 上下文名称； property 设置变量
+        节点： appender,  root， logger
+      详细说明见具体位置
+ -->
+<configuration  scan="true" scanPeriod="60 seconds" debug="false">
+    <!--
+        contextName说明：
+        每个logger都关联到logger上下文，默认上下文名称为“default”。但可以使用设置成其他名字，
+        用于区分不同应用程序的记录。一旦设置，不能修改,可以通过%contextName来打印日志上下文名称。
+     -->
+    <contextName>server-petal</contextName>
+    <!--
+        property说明：
+        用来定义变量值的标签， 有两个属性，name和value；其中name的值是变量的名称，value的值时
+        变量定义的值。通过定义的值会被插入到logger上下文中。定义变量后，可以使“${}”来使用变量。
+
+        目前来说，可以直接配置属性，或者引入外部配置文件方式。引入外部文件可用file或者resource属性，
+        但是推荐使用resouce属性。file必须是绝对路径，不推荐。
+    -->
+    <!--<property resource="application.properties"></property>-->
+    <property name="LOG_PATH" value="/home/server/logs" />
+    <property name="APP_NAME" value="server-petal" />
+    <!--输出到控制台-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 格式化输出 -->
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.sss} %-5level [%contextName] -- [%t] %logger{36}.%method: %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--按照每天输出到日志文件-->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件输出的文件名 -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志文件保留天数 -->
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+        <!-- 格式化输出 -->
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.sss} %-5level [%contextName] -- [%t] %logger{36}.%method: %msg%n</pattern>
+        </encoder>
+        <!-- 日志文件最大的文件大小 -->
+        <!-- <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>10MB</MaxFileSize>
+        </triggeringPolicy> -->
+    </appender>
+
+    <!-- 日志输出的级别控制 -->
+    <root level="info">
+        <appender-ref ref="console" />
+        <appender-ref ref="file" />
+    </root>
+
+</configuration>
